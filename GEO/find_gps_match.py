@@ -78,12 +78,18 @@ for i in df["time"]:
 df["coords_1"] = coords_1
 df["coords_2"] = coords_2
 
-# CALCULATING DISTANCE BETWEEN THE TWO PERSONS WHEN BOTH HAVE DATA FOR TIME SLOT
+# CALCULATING DISTANCE BETWEEN THE TWO PERSONS WHEN BOTH HAVE DATA FOR TIME SLOT (30-second range)
 distance = [haversine(float(df['coords_1'][i][0]),float(df['coords_1'][i][1]),float(df['coords_2'][i][0]),float(df['coords_2'][i][1])) if len(df["coords_1"][i]) > 1 and len(df["coords_2"][i]) > 1 else '' for i in range(df.shape[0]) ]
 df["distance"] = distance
 
-# print csv
+# print csv for visual overview
 df.to_csv('df-30-secs.csv', index=True)
 
-# It is clear then where distance between the two persons (in the same 30-second range) was the shortest.
-# The ANSWER IS 52.3605, 4.8745 (coordinates of person 1)
+# get "distance" column for all rows in dataframe which have a value there that is NOT empty string. Then take the minimum value of that
+min_distance = df.loc[df["distance"] != '',"distance"].min()
+# get locations of both persons at minimum distance
+closest_locations = df.loc[df["distance"] == min_distance,["coords_1", "coords_2"]]
+closest_locations.iloc[0,0] # returns ('52.360530743552246', '4.87452832871918', datetime.datetime(2019, 11, 5, 15, 51, 59, tzinfo=tzutc()))
+closest_locations.iloc[0,1] # returns ('52.3631370179605', '4.880431704948705', datetime.datetime(2019, 11, 5, 15, 52, 13, tzinfo=tzutc()))
+
+# The ANSWER IS 52.3605, 4.8745 (the coordinates of person 1 at 15h51s59)
